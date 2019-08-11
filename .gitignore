@@ -261,4 +261,4 @@ __pycache__/
 *.pyc
 
 # GlobalAccountData
-./KindomKeeper/Data/GlobalData.json
+/KindomKeeper/Data/
