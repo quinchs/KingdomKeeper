@@ -136,9 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Data\GlobalData.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="Data\GlobalData.json" />
     <None Include="Data\UserAccounts.json" />
     <None Include="packages.config" />
   </ItemGroup>
