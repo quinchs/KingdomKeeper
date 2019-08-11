@@ -14,17 +14,34 @@ namespace KindomKeeper
         internal static DiscordSocketClient Client { get; set; }
         internal static string jsonAccountFilePath = Environment.CurrentDirectory + @"\Data\UserAccounts.json";
         internal static string jsonGlobalData = Environment.CurrentDirectory + @"\Data\GlobalData.json";
-        internal static string BotToken = "";
+        internal static string BotToken { get; set; }
+        internal static ulong GuildID { get; set; }
+        internal static ulong DevGuildID { get; set; }
+        internal static string Status { get; set; }
+        internal static ulong jakeID { get; set; }
+
 
         internal static void readConfig()
         {
-            JsonData data = JsonConvert.DeserializeObject<JsonData>(File.ReadAllText(jsonGlobalData));
+            var data = JsonConvert.DeserializeObject<JsonData>(File.ReadAllText(jsonGlobalData));
             BotToken = data.Token;
+            GuildID = data.ChannelID;
+            DevGuildID = data.DevChannelID;
+            Status = data.StatusMessage;
+            jakeID = data.JakeeID;
         }
     }
-    internal struct JsonData
+    public struct JsonData
     {
-        internal string Token { get; set; }
-        internal ulong ChannelID { get; set; }
+        public string Token { get; set; }
+        public ulong ChannelID { get; set; }
+        public ulong DevChannelID { get; set; }
+        public string StatusMessage { get; set; }
+        public ulong JakeeID { get; set; }
+
+    }
+    public struct BotList
+    {
+        public static List<SocketGuildUser> botList { get; set; }
     }
 }

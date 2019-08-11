@@ -44,3 +44,4 @@ C:\Users\plynch\source\repos\KindomKeeper\KindomKeeper\bin\Debug\System.Interact
 C:\Users\plynch\source\repos\KindomKeeper\KindomKeeper\obj\Debug\KindomKeeper.csproj.CopyComplete
 C:\Users\plynch\source\repos\KindomKeeper\KindomKeeper\obj\Debug\KindomKeeper.exe
 C:\Users\plynch\source\repos\KindomKeeper\KindomKeeper\obj\Debug\KindomKeeper.pdb
+C:\Users\plynch\source\repos\KindomKeeper\KindomKeeper\bin\Debug\Data\GlobalData.json

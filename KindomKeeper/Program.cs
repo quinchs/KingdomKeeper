@@ -23,6 +23,7 @@ namespace KindomKeeper
 
             Console.WriteLine("[" + DateTime.Now.TimeOfDay + "] - " + "Welcome, " + Environment.UserName);
 
+            Global.readConfig();
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
@@ -36,7 +37,7 @@ namespace KindomKeeper
 
 
 
-            await _client.LoginAsync(TokenType.Bot, );
+            await _client.LoginAsync(TokenType.Bot, Global.BotToken);
 
             await _client.StartAsync();
 

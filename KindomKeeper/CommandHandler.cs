@@ -19,7 +19,7 @@ namespace KindomKeeper
         {
             _client = client;
             
-            _client.SetGameAsync("0.0.1 Testing build", null, ActivityType.Playing);
+            _client.SetGameAsync(Global.Status, null, ActivityType.Playing);
 
             _client.SetStatusAsync(UserStatus.Online);
 
@@ -27,12 +27,54 @@ namespace KindomKeeper
 
             _service.AddModulesAsync(Assembly.GetEntryAssembly(), null);
 
+            _client.UserJoined += checkBot;
+
+            _client.UserUpdated += checkAddRole;
 
             _client.Ready += _client_Connected;
             _client.MessageReceived += HandleCommandAsync;
 
             Console.WriteLine("[" + DateTime.Now.TimeOfDay + "] - " + "Services loaded");
         }
+
+        private async Task checkAddRole(SocketUser arg1, SocketUser arg2)
+        {
+            var user = (SocketGuildUser)arg1;
+            if(user.IsBot)
+            {
+                if (BotList.botList.Contains(user))
+                {
+                    if(user.Roles.Count >= 1)
+                    {
+                        foreach(var role in user.Roles)
+                        {
+                            await user.RemoveRoleAsync(role);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task checkBot(SocketGuildUser arg)
+        {
+            if(arg.IsBot)
+            {
+                foreach(var role in arg.Roles)
+                {
+                    await arg.RemoveRoleAsync(role);
+                }
+                BotList.botList.Add(arg);
+
+                EmbedBuilder b = new EmbedBuilder();
+                b.Color = Color.Red;
+                b.Description = $"Someone has invited a bot called: {arg.Username} to the server, Please type **\"Allow** to allow this bot";
+                b.Footer.Text = DateTime.UtcNow.ToString();
+                b.Footer.IconUrl = "http://icons.iconseeker.com/png/fullsize/sleek-xp-software/windows-close-program-1.png";
+                b.Title = "Unknown Bot!";
+                await _client.GetGuild(Global.GuildID).GetUser(Global.jakeID).SendMessageAsync("", false, b.Build());
+            }
+        }
+
         private async Task _client_Connected()
         {
 
