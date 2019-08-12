@@ -37,9 +37,23 @@ namespace KindomKeeper.Modules
                 if (Global.JsonItemsListDevOps.Keys.Contains(configItem))
                 {
                     JsonData data = Global.CurrentJsonData;
-                    modifyJsonData(data, configItem, value);
-                    await Context.Channel.SendMessageAsync($"Sucessfuly modified the config, Updated the item {configItem} with the new value of {value}");
-                    await modify("list");
+                    data = modifyJsonData(data, configItem, newvalue);
+                    if(data.Token != null)
+                    {
+                        Global.saveConfig(data);
+                        await Context.Channel.SendMessageAsync($"Sucessfuly modified the config, Updated the item {configItem} with the new value of {value}");
+                        EmbedBuilder b = new EmbedBuilder();
+                        b.Footer = new EmbedFooterBuilder();
+                        b.Footer.Text = "**Dev Config**";
+                        b.Title = "Dev Config List";
+                        string list = "**Here is the current config file** \n";
+                        foreach (var item in Global.JsonItemsListDevOps) { list += $"```json\n \"{item.Key}\" : \"{item.Value}\"```\n"; }
+                        b.Description = list;
+                        b.Color = Color.Green;
+                        b.Footer.Text = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " ZULU";
+                        await Context.Channel.SendMessageAsync("", false, b.Build());
+                    }
+                    
                 }
                 else { await Context.Channel.SendMessageAsync($"Could not find the config item {configItem}! Try `{Global.preflix}modify list` for a list of the Config!"); }
             }
@@ -50,9 +64,22 @@ namespace KindomKeeper.Modules
                     if (Global.jsonItemsList.Keys.Contains(configItem))
                     {
                         JsonData data = Global.CurrentJsonData;
-                        modifyJsonData(data, configItem, value);
-                        await Context.Channel.SendMessageAsync($"Sucessfuly modified the config, Updated the item {configItem} with the new value of {value}");
-                        await modify("list");
+                        data = modifyJsonData(data, configItem, newvalue);
+                        if (data.Token != null)
+                        {
+                            Global.saveConfig(data);
+                            await Context.Channel.SendMessageAsync($"Sucessfuly modified the config, Updated the item {configItem} with the new value of {value}");
+                            EmbedBuilder b = new EmbedBuilder();
+                            b.Footer = new EmbedFooterBuilder();
+                            b.Footer.Text = "**Admin Config**";
+                            b.Title = "Admin Config List";
+                            string list = "**Here is the current config file** \n";
+                            foreach (var item in Global.jsonItemsList) { list += $"```json\n \"{item.Key}\" : \"{item.Value}\"```\n"; }
+                            b.Description = list;
+                            b.Color = Color.Green;
+                            b.Footer.Text = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " ZULU";
+                            await Context.Channel.SendMessageAsync("", false, b.Build());
+                        }
                     }
                     else
                     {
@@ -221,37 +248,54 @@ namespace KindomKeeper.Modules
         }
         public JsonData modifyJsonData(JsonData data, string configItem, string value)
         {
-            switch (configItem)
+            try
             {
-                case "ChannelID":
-                    data.ChannelID = Convert.ToUInt64(value);
-                    break;
-                case "DevBotLogsChannel":
-                    data.DevBotLogsChannel = Convert.ToUInt64(value);
-                    break;
-                case "DevChannelID":
-                    data.DevChannelID = Convert.ToUInt64(value);
-                    break;
-                case "JakeeID":
-                    data.JakeeID = Convert.ToUInt64(value);
-                    break;
-                case "Preflix":
-                    data.Preflix = value.ToCharArray().First().ToString();
-                    break;
-                case "StatusMessage":
-                    data.StatusMessage = value;
-                    break;
-                case "WelcomeMessage":
-                    data.WelcomeMessage = value;
-                    break;
-                case "Welcomemessagechannel":
-                    data.Welcomemessagechannel = Convert.ToUInt64(value);
-                    break;
-                case "Rules":
-                    data.Rules = Convert.ToUInt64(value);
-                    break;
+                switch (configItem)
+                {
+                    case "ChannelID":
+                        data.ChannelID = Convert.ToUInt64(value);
+                        break;
+                    case "DevBotLogsChannel":
+                        data.DevBotLogsChannel = Convert.ToUInt64(value);
+                        break;
+                    case "DevChannelID":
+                        data.DevChannelID = Convert.ToUInt64(value);
+                        break;
+                    case "JakeeID":
+                        data.JakeeID = Convert.ToUInt64(value);
+                        break;
+                    case "Preflix":
+                        data.Preflix = value.ToCharArray().First().ToString();
+                        break;
+                    case "StatusMessage":
+                        data.StatusMessage = value;
+                        Context.Client.SetGameAsync(value, null, ActivityType.Listening);
+                        break;
+                    case "WelcomeMessage":
+                        data.WelcomeMessage = value;
+                        break;
+                    case "Welcomemessagechannel":
+                        data.Welcomemessagechannel = Convert.ToUInt64(value);
+                        break;
+                    case "Rules":
+                        data.Rules = Convert.ToUInt64(value);
+                        break;
+                        
+                }
+                return data;
             }
-            return data;
+            catch(Exception ex)
+            {
+                EmbedBuilder b = new EmbedBuilder()
+                {
+                    Color = Color.Red,
+                    Title = "Exeption!",
+                    Description = $"**{ex}**"
+                };
+                Context.Channel.SendMessageAsync("", false, b.Build());
+                return new JsonData();
+            }
+            
         }
     }
 }

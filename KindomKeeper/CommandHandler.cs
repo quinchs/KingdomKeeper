@@ -20,7 +20,7 @@ namespace KindomKeeper
         {
             _client = client;
             
-            _client.SetGameAsync(Global.Status, null, ActivityType.Playing);
+            _client.SetGameAsync(Global.Status, null, ActivityType.Listening);
 
             _client.SetStatusAsync(UserStatus.Online);
 
@@ -124,7 +124,7 @@ namespace KindomKeeper
                 {
                     EmbedBuilder b = new EmbedBuilder();
                     b.Color = Color.Red;
-                    b.Description = $"The following info is the Command error info, `{msg.Author.Username}#{msg.Author.Discriminator}` tried to use the `{msg}` Command: \n \n **COMMAND ERROR**: ```{result.Error.Value}``` \n \n **COMMAND ERROR REASON**: ```{result.ErrorReason}```";
+                    b.Description = $"The following info is the Command error info, `{msg.Author.Username}#{msg.Author.Discriminator}` tried to use the `{msg}` Command in {msg.Channel}: \n \n **COMMAND ERROR**: ```{result.Error.Value}``` \n \n **COMMAND ERROR REASON**: ```{result.ErrorReason}```";
                     b.Author = new EmbedAuthorBuilder();
                     b.Author.Name = msg.Author.Username + "#" + msg.Author.Discriminator;
                     b.Author.IconUrl = msg.Author.GetAvatarUrl();

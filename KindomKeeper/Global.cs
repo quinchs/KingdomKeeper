@@ -55,7 +55,7 @@ namespace KindomKeeper
         }
         internal static void saveConfig(JsonData jsonData)
         {
-            string json = JsonConvert.SerializeObject(jsonData);
+            string json = JsonConvert.SerializeObject(jsonData, Formatting.Indented);   
             File.WriteAllText(jsonGlobalData, json);
             readConfig();
         }
