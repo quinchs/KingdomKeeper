@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Discord.Rest;
 using Discord;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace KindomKeeper.Modules
 {
@@ -20,9 +21,64 @@ namespace KindomKeeper.Modules
             await Context.Channel.SendMessageAsync("Swiggity swag motherflok");
         }
         [Command("modify")]
-        public async Task modify(string configItem, string newValue)
+        public async Task modify(string configItem, string value)
         {
-            //add config modifier
+            string newvalue = value.Replace("\\", " ");
+            if(checkDebugServer(Context))//allow full modify
+            {
+                if (Global.JsonItemsListDevOps.Keys.Contains(configItem))
+                {
+                    JsonData data = new JsonData();
+                }
+                else { await Context.Channel.SendMessageAsync($"Could not find the config item {configItem}! Try `{Global.preflix}modify list` for a list of the Config!"); }
+            }
+            if(checkMainServer(Context))
+            {
+                if(checkTestingChannel(Context))//allow some modify
+                {
+
+                }
+            }
+        }
+        [Command("modify")]
+        public async Task modify(string configItem)
+        {
+            if(configItem == "list")
+            {
+                if(checkDebugServer(Context))
+                {
+                    EmbedBuilder b = new EmbedBuilder();
+                    b.Footer = new EmbedFooterBuilder();
+                    b.Footer.Text = "**Dev Config**";
+                    b.Title = "Dev Config List";
+                    string list = "**Here is the current config file** \n";
+                    foreach(var item in Global.JsonItemsListDevOps) { list += $"```json\n \"{item.Key}\" : \"{item.Value}\"```\n"; }
+                    b.Description = list;
+                    b.Color = Color.Green;
+                    b.Footer.Text = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " ZULU";
+                    await Context.Channel.SendMessageAsync("", false, b.Build());
+                }
+                else
+                {
+                    if(checkTestingChannel(Context))
+                    {
+                        EmbedBuilder b = new EmbedBuilder();
+                        b.Footer = new EmbedFooterBuilder();
+                        b.Footer.Text = "**Admin Config**";
+                        b.Title = "Admin Config List";
+                        string list = "**Here is the current config file** \n";
+                        foreach (var item in Global.jsonItemsList) { list += $"```json\n \"{item.Key}\" : \"{item.Value}\"```\n"; }
+                        b.Description = list;
+                        b.Color = Color.Green;
+                        b.Footer.Text = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " ZULU";
+                        await Context.Channel.SendMessageAsync("", false, b.Build());
+                    }
+                }
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync($"No value was provided for the variable `{configItem}`");
+            }
         }
         [Command("ban")]
         public async Task ban(string userstring)

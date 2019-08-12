@@ -29,6 +29,8 @@ namespace KindomKeeper
 
             _client.UserJoined += checkBot;
 
+            _client.UserJoined += UserJoined;
+
             _client.UserUpdated += checkAddRole;
 
             _client.Ready += _client_Connected;
@@ -37,6 +39,21 @@ namespace KindomKeeper
             Console.WriteLine("[" + DateTime.Now.TimeOfDay + "] - " + "Services loaded");
         }
 
+        private async Task UserJoined(SocketGuildUser arg)
+        {
+            EmbedBuilder b = new EmbedBuilder();
+            b.ImageUrl = "https://cdn.discordapp.com/attachments/608080803733176325/610314836177453056/image0.gif";
+            b.Title = $"***Welcome, {arg.Username}#{arg.Discriminator}!";
+            b.Description = welcomeMessageBuilder(arg, Global.welcomeMessage);
+            b.Footer = new EmbedFooterBuilder();
+            b.Footer.IconUrl = arg.GetAvatarUrl();
+            b.Footer.Text = $"{arg.Username}#{arg.Discriminator}";
+            await _client.GetGuild(Global.GuildID).GetTextChannel(Global.WelcomemessagechannelID).SendMessageAsync("", false, b.Build());
+        }
+        private string welcomeMessageBuilder(SocketGuildUser user, string welcomeMessage) //inputs are: (user) -> pings user 
+        {
+            return welcomeMessage.Replace("(user)", user.Mention);
+        }
         private async Task checkAddRole(SocketUser arg1, SocketUser arg2)
         {
             var user = (SocketGuildUser)arg1;
