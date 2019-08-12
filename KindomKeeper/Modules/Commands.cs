@@ -15,10 +15,18 @@ namespace KindomKeeper.Modules
 {
     public class Commands : ModuleBase<SocketCommandContext>
     {
-        [Command("test")]
+        [Command("welcome")]
         public async Task test()
         {
-            await Context.Channel.SendMessageAsync("Swiggity swag motherflok");
+            var arg = Context.Guild.GetUser(Context.Message.Author.Id);
+            EmbedBuilder b = new EmbedBuilder();
+            b.ImageUrl = "https://cdn.discordapp.com/attachments/608080803733176325/610360300880789514/17fd2ebcb1f2.gif";
+            b.Title = $"***Welcome, {arg.Username}#{arg.Discriminator}!";
+            b.Description = CommandHandler.welcomeMessageBuilder(arg, Global.welcomeMessage);
+            b.Footer = new EmbedFooterBuilder();
+            b.Footer.IconUrl = arg.GetAvatarUrl();
+            b.Footer.Text = $"{arg.Username}#{arg.Discriminator}";
+            await Context.Channel.SendMessageAsync("", false, b.Build());
         }
         [Command("modify")]
         public async Task modify(string configItem, string value)
@@ -28,7 +36,10 @@ namespace KindomKeeper.Modules
             {
                 if (Global.JsonItemsListDevOps.Keys.Contains(configItem))
                 {
-                    JsonData data = new JsonData();
+                    JsonData data = Global.CurrentJsonData;
+                    modifyJsonData(data, configItem, value);
+                    await Context.Channel.SendMessageAsync($"Sucessfuly modified the config, Updated the item {configItem} with the new value of {value}");
+                    await modify("list");
                 }
                 else { await Context.Channel.SendMessageAsync($"Could not find the config item {configItem}! Try `{Global.preflix}modify list` for a list of the Config!"); }
             }
@@ -36,6 +47,26 @@ namespace KindomKeeper.Modules
             {
                 if(checkTestingChannel(Context))//allow some modify
                 {
+                    if (Global.jsonItemsList.Keys.Contains(configItem))
+                    {
+                        JsonData data = Global.CurrentJsonData;
+                        modifyJsonData(data, configItem, value);
+                        await Context.Channel.SendMessageAsync($"Sucessfuly modified the config, Updated the item {configItem} with the new value of {value}");
+                        await modify("list");
+                    }
+                    else
+                    {
+                        if(Global.JsonItemsListDevOps.Keys.Contains(configItem))
+                        {
+                            EmbedBuilder b = new EmbedBuilder();
+                            b.Color = Color.Red;
+                            b.Title = "You need Better ***PERMISSION***";
+                            b.Description = "You do not have permission to modify this item, if you think this is incorrect you can DM quin#3017 for help";
+
+                            await Context.Channel.SendMessageAsync("", false, b.Build());
+                        }
+                        else { await Context.Channel.SendMessageAsync($"Could not find the config item {configItem}! Try `{Global.preflix}modify list` for a list of the Config!"); }
+                    }
 
                 }
             }
@@ -187,6 +218,40 @@ namespace KindomKeeper.Modules
         {
             if (Context.Guild.Id == Global.GuildID) return true; 
             else return false;
+        }
+        public JsonData modifyJsonData(JsonData data, string configItem, string value)
+        {
+            switch (configItem)
+            {
+                case "ChannelID":
+                    data.ChannelID = Convert.ToUInt64(value);
+                    break;
+                case "DevBotLogsChannel":
+                    data.DevBotLogsChannel = Convert.ToUInt64(value);
+                    break;
+                case "DevChannelID":
+                    data.DevChannelID = Convert.ToUInt64(value);
+                    break;
+                case "JakeeID":
+                    data.JakeeID = Convert.ToUInt64(value);
+                    break;
+                case "Preflix":
+                    data.Preflix = value.ToCharArray().First().ToString();
+                    break;
+                case "StatusMessage":
+                    data.StatusMessage = value;
+                    break;
+                case "WelcomeMessage":
+                    data.WelcomeMessage = value;
+                    break;
+                case "Welcomemessagechannel":
+                    data.Welcomemessagechannel = Convert.ToUInt64(value);
+                    break;
+                case "Rules":
+                    data.Rules = Convert.ToUInt64(value);
+                    break;
+            }
+            return data;
         }
     }
 }

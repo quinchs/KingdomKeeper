@@ -25,13 +25,17 @@ namespace KindomKeeper
         internal static Dictionary<string, string> jsonItemsList { get; private set; }
         internal static Dictionary<string, string> JsonItemsListDevOps { get; private set; }
         internal static char preflix { get; set; }
+        internal static ulong rulesID { get; set; }
+        internal static JsonData CurrentJsonData;
 
 
         internal static void readConfig()
         {
             var data = JsonConvert.DeserializeObject<JsonData>(File.ReadAllText(jsonGlobalData));
+            CurrentJsonData = data;
             BotToken = data.Token;
             GuildID = data.ChannelID;
+            rulesID = data.Rules;
             DevGuildID = data.DevChannelID;
             Status = data.StatusMessage;
             jakeID = data.JakeeID;
@@ -49,6 +53,12 @@ namespace KindomKeeper
             JsonItemsListDevOps.Remove("Token");
 
         }
+        internal static void saveConfig(JsonData jsonData)
+        {
+            string json = JsonConvert.SerializeObject(jsonData);
+            File.WriteAllText(jsonGlobalData, json);
+            readConfig();
+        }
     }
     public struct JsonData
     {
@@ -60,6 +70,7 @@ namespace KindomKeeper
         public ulong DevBotLogsChannel { get; set; }
         public string WelcomeMessage { get; set; }
         public ulong Welcomemessagechannel { get; set; }
+        public ulong Rules { get; set; }
         public string Preflix { get; set; }
     }
     public struct BotList

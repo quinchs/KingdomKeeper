@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace KindomKeeper
@@ -42,17 +43,26 @@ namespace KindomKeeper
         private async Task UserJoined(SocketGuildUser arg)
         {
             EmbedBuilder b = new EmbedBuilder();
-            b.ImageUrl = "https://cdn.discordapp.com/attachments/608080803733176325/610314836177453056/image0.gif";
-            b.Title = $"***Welcome, {arg.Username}#{arg.Discriminator}!";
+            b.Color = Color.Green;
+            b.ImageUrl = "https://cdn.discordapp.com/attachments/608080803733176325/610360300880789514/17fd2ebcb1f2.gif";
+            b.Title = $"***Welcome, {arg.Username}#{arg.Discriminator}!***";
             b.Description = welcomeMessageBuilder(arg, Global.welcomeMessage);
             b.Footer = new EmbedFooterBuilder();
             b.Footer.IconUrl = arg.GetAvatarUrl();
             b.Footer.Text = $"{arg.Username}#{arg.Discriminator}";
             await _client.GetGuild(Global.GuildID).GetTextChannel(Global.WelcomemessagechannelID).SendMessageAsync("", false, b.Build());
         }
-        private string welcomeMessageBuilder(SocketGuildUser user, string welcomeMessage) //inputs are: (user) -> pings user 
+        internal static string welcomeMessageBuilder(SocketGuildUser user, string welcomeMessage) //inputs are: (user) -> pings user 
         {
-            return welcomeMessage.Replace("(user)", user.Mention);
+            string newmsg = welcomeMessage.Replace("(user)", user.Mention);
+            var mtch = Regex.Match(newmsg, "/((\\d+))/gm");
+            for(int i = 0; i != mtch.Captures.Count; i++)
+            {
+                string val = mtch.Captures[i].Value.Trim('(', ')');
+                string chn = $"#{_client.GetGuild(Global.GuildID).GetChannel(Convert.ToUInt64(val)).ToString()}";
+                newmsg = Regex.Replace(newmsg, mtch.Groups[i].Value, chn); 
+            }
+            return newmsg;
         }
         private async Task checkAddRole(SocketUser arg1, SocketUser arg2)
         {
