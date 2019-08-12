@@ -19,6 +19,7 @@ namespace KindomKeeper
         internal static ulong DevGuildID { get; set; }
         internal static string Status { get; set; }
         internal static ulong jakeID { get; set; }
+        internal static ulong devlogchannel { get; set; }
 
 
         internal static void readConfig()
@@ -29,6 +30,7 @@ namespace KindomKeeper
             DevGuildID = data.DevChannelID;
             Status = data.StatusMessage;
             jakeID = data.JakeeID;
+            devlogchannel = data.DevBotLogsChannel;
         }
     }
     public struct JsonData
@@ -38,6 +40,7 @@ namespace KindomKeeper
         public ulong DevChannelID { get; set; }
         public string StatusMessage { get; set; }
         public ulong JakeeID { get; set; }
+        public ulong DevBotLogsChannel { get; set; }
 
     }
     public struct BotList

@@ -95,7 +95,16 @@ namespace KindomKeeper
 
                 if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
                 {
-
+                    EmbedBuilder b = new EmbedBuilder();
+                    b.Color = Color.Red;
+                    b.Description = $"The following info is the Command error info, `{msg.Author.Username}#{msg.Author.Discriminator}` tried to use the `{msg}` Command: \n \n **COMMAND ERROR**: ```{result.Error.Value}``` \n \n **COMMAND ERROR REASON**: ```{result.ErrorReason}```";
+                    b.Author = new EmbedAuthorBuilder();
+                    b.Author.Name = msg.Author.Username + "#" + msg.Author.Discriminator;
+                    b.Author.IconUrl = msg.Author.GetAvatarUrl();
+                    b.Footer = new EmbedFooterBuilder();
+                    b.Footer.Text = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " ZULU";
+                    b.Title = "Bot Command Error!";
+                    await _client.GetGuild(Global.DevGuildID).GetTextChannel(Global.devlogchannel).SendMessageAsync("", false, b.Build());
                 }
             }
         }
