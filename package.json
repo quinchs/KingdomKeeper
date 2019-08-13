@@ -1,0 +1,13 @@
+{
+    "name": "chillts",
+    "version": "0.0.1",
+    "description": "The Bot for Jake's discord server.",
+    "main": "dist/index.js",
+    "repository": "https://github.com/quinchs/KingdomKeeper.git",
+    "author": "LOHT03 <48422312+LOHT03@users.noreply.github.com>",
+    "license": "MIT",
+    "scripts": {
+        "build-ts": "tsc",
+        "build-ts:watch": "tsc -w"
+    }
+}
