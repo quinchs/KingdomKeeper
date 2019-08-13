@@ -88,4 +88,4 @@ typings/
 .dynamodb/
 
 #TypeScript Compiled Output Folder
-.dist/
+dist/
