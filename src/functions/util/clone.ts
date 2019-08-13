@@ -1,4 +1,4 @@
-import { Guild } from "discord.js";
+import { Guild, TextChannel } from "discord.js";
 import { reportToDev } from "./errorReport"
 
 /**
@@ -7,6 +7,10 @@ import { reportToDev } from "./errorReport"
  * @param guildTwo The guild to copy to.
  */
 export async function clone(guildOne: Guild, guildTwo: Guild) {
+    let guildOneChannel = guildOne.channels.get("609620857345540106");
+    if (guildOneChannel instanceof TextChannel) {
+        guildOneChannel.send(`You have chose to copy the roles from ${guildOne.name} to ${guildTwo.name}!`)
+    }
     guildOne.roles.forEach(originalRole => {
         guildTwo.createRole({
             color: originalRole.color,
@@ -17,7 +21,7 @@ export async function clone(guildOne: Guild, guildTwo: Guild) {
             position: originalRole.position
         }).catch(error => {
             console.error(error);
-            reportToDev(guildOne, error);
+            reportToDev(guildTwo, error);
         });
     })
 }

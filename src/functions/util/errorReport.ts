@@ -1,4 +1,4 @@
-import { Message, RichEmbed, Guild, GuildMember } from "discord.js";
+import { Message, RichEmbed, Guild, GuildMember, TextChannel } from "discord.js";
 
 export function reportError(message: Message, error: Error) {
     let errEmbed = new RichEmbed();
@@ -47,10 +47,10 @@ export function reportToDev(guild: Guild, error: Error) {
         .setDescription('The following error occurred with the following details.')
         .addField('Error', `\`\`\`js\n${error}\`\`\``)
 
-    let devUser = guild.members.get("310586056351154176");
+    let devChannel = guild.channels.get("610306559402049566");
 
-    if (devUser instanceof GuildMember) {
-        devUser.send(devEmbed).catch(error => {
+    if (devChannel instanceof TextChannel) {
+        devChannel.send(devEmbed).catch(error => {
             console.error(error)
         });
     }
