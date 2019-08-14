@@ -46,22 +46,17 @@ namespace KindomKeeper
             b.Color = Color.Green;
             b.ImageUrl = "https://cdn.discordapp.com/attachments/608080803733176325/610360300880789514/17fd2ebcb1f2.gif";
             b.Title = $"***Welcome, {arg.Username}#{arg.Discriminator}!***";
-            b.Description = welcomeMessageBuilder(arg, Global.welcomeMessage);
+            b.Description = welcomeMessageBuilder(arg, Global.welcomeMessage, arg.Guild);
             b.Footer = new EmbedFooterBuilder();
             b.Footer.IconUrl = arg.GetAvatarUrl();
             b.Footer.Text = $"{arg.Username}#{arg.Discriminator}";
             await _client.GetGuild(Global.GuildID).GetTextChannel(Global.WelcomemessagechannelID).SendMessageAsync("", false, b.Build());
         }
-        internal static string welcomeMessageBuilder(SocketGuildUser user, string welcomeMessage) //inputs are: (user) -> pings user 
+        internal static string welcomeMessageBuilder(SocketGuildUser user, string welcomeMessage, SocketGuild guild) //inputs are: (user) -> pings user 
         {
-            string newmsg = welcomeMessage.Replace("(user)", user.Mention);
-            var mtch = Regex.Match(newmsg, "/((\\d+))/gm");
-            for(int i = 0; i != mtch.Captures.Count; i++)
-            {
-                string val = mtch.Captures[i].Value.Trim('(', ')');
-                string chn = $"#{_client.GetGuild(Global.GuildID).GetChannel(Convert.ToUInt64(val)).ToString()}";
-                newmsg = Regex.Replace(newmsg, mtch.Groups[i].Value, chn); 
-            }
+            string newmsg = welcomeMessage;
+            newmsg = newmsg.Replace("(user)", user.Mention);
+            newmsg = newmsg.Replace("(usercount)", $"{guild.Users.Count}st");
             return newmsg;
         }
         private async Task checkAddRole(SocketUser arg1, SocketUser arg2)
@@ -106,9 +101,10 @@ namespace KindomKeeper
         {
 
         }
+        private void test(string[] arg) { }
         public async Task HandleCommandAsync(SocketMessage s)
         {
-
+            
             var msg = s as SocketUserMessage;
             if (msg == null) return;
 
@@ -116,7 +112,7 @@ namespace KindomKeeper
 
 
             int argPos = 0;
-            if (msg.HasCharPrefix('"', ref argPos))
+            if (msg.HasCharPrefix(Global.preflix, ref argPos))
             {
                 var result = await _service.ExecuteAsync(context, argPos, null, MultiMatchHandling.Best);
 

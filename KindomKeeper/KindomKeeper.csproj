@@ -126,6 +126,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BanLimitTimer.cs" />
     <Compile Include="CommandHandler.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Modules\Commands.cs" />

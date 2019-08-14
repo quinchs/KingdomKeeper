@@ -20,9 +20,10 @@ namespace KindomKeeper.Modules
         {
             var arg = Context.Guild.GetUser(Context.Message.Author.Id);
             EmbedBuilder b = new EmbedBuilder();
+            b.Color = Color.Green;
             b.ImageUrl = "https://cdn.discordapp.com/attachments/608080803733176325/610360300880789514/17fd2ebcb1f2.gif";
-            b.Title = $"***Welcome, {arg.Username}#{arg.Discriminator}!";
-            b.Description = CommandHandler.welcomeMessageBuilder(arg, Global.welcomeMessage);
+            b.Title = $"***Welcome, {arg.Username}#{arg.Discriminator}!***";
+            b.Description = CommandHandler.welcomeMessageBuilder(arg, Global.welcomeMessage, Context.Guild);
             b.Footer = new EmbedFooterBuilder();
             b.Footer.IconUrl = arg.GetAvatarUrl();
             b.Footer.Text = $"{arg.Username}#{arg.Discriminator}";
@@ -139,13 +140,80 @@ namespace KindomKeeper.Modules
             }
         }
         [Command("ban")]
+        public async Task ban(string userstring, string reason)
+        {
+            string rg = userstring.Trim('<', '>', '@');
+            ulong d = Convert.ToUInt64(rg);
+            SocketGuildUser user = Context.Guild.GetUser(d);
+            if (user.Roles.Contains(Context.Guild.Roles.FirstOrDefault(r => r.Id == Global.developerRoleID))) { await Context.Channel.SendMessageAsync($"You cannot ban {user.Mention} because they make this bot!"); return; }
+            if (goodPerms(Context, Context.Guild.GetUser(Context.Message.Author.Id), user))
+            {
+                var checkbanlimit = Global.banTimers.FirstOrDefault(t => t.user == Context.Guild.GetUser(Context.Message.Author.Id));
+                if(checkbanlimit == null)
+                {
+                    BanLimitTimer blt = new BanLimitTimer();
+                    blt.Bans = 1;
+                    blt.user = Context.Guild.GetUser(Context.Message.Author.Id);
+                    blt.loopingTimer.Enabled = true;
+                    await Context.Guild.AddBanAsync(user, 0, reason);
+                    string banNum = "";
+                    switch (checkbanlimit.Bans)
+                    {
+                        case 1:
+                            banNum = "1st";
+                            break;
+                        case 2:
+                            banNum = "2nd";
+                            break;
+                        case 3:
+                            banNum = "3rd";
+                            break;
+                    }
+                    if (banNum == "") { banNum = $"{checkbanlimit}th"; }
+                    await Context.Channel.SendMessageAsync($"Banned {user.Mention} with reason: \"{reason}\", This is your {banNum} ban per hour!");
+                }
+                else
+                {
+                    if(checkbanlimit.Bans == Global.BanRateLimit)
+                    {
+                        await Context.Channel.SendMessageAsync($"Cannot ban {user.Mention} Because you have reach the ban limit of {Global.BanRateLimit} per Hour!");
+                    }
+                    else
+                    {
+                        checkbanlimit.Bans = checkbanlimit.Bans + 1;
+                        await Context.Guild.AddBanAsync(user, 0, reason);
+                        string banNum = "";
+                        switch(checkbanlimit.Bans)
+                        {
+                            case 1:
+                                banNum = "1st";
+                                break;
+                            case 2:
+                                banNum = "2nd";
+                                break;
+                            case 3:
+                                banNum = "3rd";
+                                break;
+                        }
+                        if(banNum == "") { banNum = $"{checkbanlimit}th"; }
+                        await Context.Channel.SendMessageAsync($"Banned {user.Mention} with reason: \"{reason}\", This is your {banNum} ban per hour!");
+                    }
+                }
+            }
+            else { await Context.Channel.SendMessageAsync($"you do not have perm to ban {user.Mention}!"); }
+        }
+        [Command("ban")]
         public async Task ban(string userstring)
         {
             string rg = userstring.Trim('<', '>', '@');
             ulong d = Convert.ToUInt64(rg);
             SocketGuildUser user = Context.Guild.GetUser(d);
-            SocketRole role = Context.Guild.Roles.FirstOrDefault(r => r.Position < Context.Guild.Roles.FirstOrDefault(n => n.Name == "Admin").Position);
-            //if (user.Roles.Contains)
+            await Context.Channel.SendMessageAsync($"you need to provide a one word reason to ban {user.Mention}!");
+        }
+        [Command("ban")]
+        public async Task ban()
+        {
+            await Context.Channel.SendMessageAsync($"you need to provide a person and a one word reson to ban!");
         }
         [Command("cloneroles")]
         public async Task cloneroles()
@@ -280,7 +348,12 @@ namespace KindomKeeper.Modules
                     case "Rules":
                         data.Rules = Convert.ToUInt64(value);
                         break;
-                        
+                    case "AdminRole":
+                        data.AdminRole = Convert.ToUInt64(value);
+                        break;
+                    case "DeveloperRole":
+                        data.DeveloperRole = Convert.ToUInt64(value);
+                        break;
                 }
                 return data;
             }
@@ -297,5 +370,27 @@ namespace KindomKeeper.Modules
             }
             
         }
+        private bool goodPerms(SocketCommandContext context, SocketGuildUser sender, SocketGuildUser reciever)
+        {
+            var senderroles = sender.Roles;
+            var recieverroles = reciever.Roles;
+            int adminrolepos = context.Guild.Roles.FirstOrDefault(n => n.Id == 565747713778647051).Position;
+            foreach (var role in senderroles)
+            {
+                if (role.Position > adminrolepos)
+                {
+                    foreach (var rl in recieverroles)
+                    {
+                        if (rl.Position >= adminrolepos)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }

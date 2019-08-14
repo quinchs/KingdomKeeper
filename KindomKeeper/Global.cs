@@ -27,7 +27,10 @@ namespace KindomKeeper
         internal static char preflix { get; set; }
         internal static ulong rulesID { get; set; }
         internal static JsonData CurrentJsonData;
-
+        internal static ulong adminRoleID { get; set; }
+        internal static ulong developerRoleID { get; set; }
+        internal static int BanRateLimit { get; set; }
+        internal static List<BanLimitTimer> banTimers { get; set; }
 
         internal static void readConfig()
         {
@@ -51,7 +54,9 @@ namespace KindomKeeper
             jsonItemsList.Remove("JakeeID");
             JsonItemsListDevOps = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(jsonGlobalData));
             JsonItemsListDevOps.Remove("Token");
-
+            developerRoleID = data.DeveloperRole;
+            adminRoleID = data.AdminRole;
+            BanRateLimit = data.BanLimit;
         }
         internal static void saveConfig(JsonData jsonData)
         {
@@ -72,6 +77,9 @@ namespace KindomKeeper
         public ulong Welcomemessagechannel { get; set; }
         public ulong Rules { get; set; }
         public string Preflix { get; set; }
+        public ulong AdminRole { get; set; }
+        public ulong DeveloperRole { get; set; }
+        public int BanLimit { get; set; }
     }
     public struct BotList
     {
