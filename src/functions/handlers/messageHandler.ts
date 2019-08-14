@@ -1,5 +1,6 @@
 import { Message, Guild } from "discord.js";
 import { clone } from "../util/clone";
+import { cloneChannels } from "../util/cloneChannels";
 import * as chalk from "chalk";
 import * as prompter from "discordjs-prompter";
 
@@ -30,6 +31,29 @@ export function messageHandler(message: Message) {
                         message.reply("Alright, cancelling...");
                     }
                 });
+        }
+
+        if (command === "clonechannels") {
+            let devServer = message.client.guilds.get("608080803728982036");
+
+            prompter.default.reaction(message.channel, {
+                question: "Are you sure you want to continue with cloning the channels to the devServer?",
+                userId: message.author.id,
+                timeout: 5000
+            })
+            .then(response => {
+                if(!response) message.reply("You took too long to make your decision!");
+                if (response == "yes") {
+                    message.reply("Starting to clone the channels...");
+                    if (devServer instanceof Guild) {
+                        cloneChannels(message.guild, devServer);
+                    }
+                }
+                if (response == "no") {
+                    message.reply("Alright, cancelling the operation...")
+                }
+            }) 
+            
         }
     }
 }
