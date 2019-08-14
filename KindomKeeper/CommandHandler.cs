@@ -109,7 +109,7 @@ namespace KindomKeeper
             if (msg == null) return;
 
             var context = new SocketCommandContext(_client, msg);
-
+            
 
             int argPos = 0;
             if (msg.HasCharPrefix(Global.preflix, ref argPos))

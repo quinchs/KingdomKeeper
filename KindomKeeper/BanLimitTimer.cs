@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace KindomKeeper
         private void LoopingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             Global.banTimers.Remove(this);
-
+            user.SendMessageAsync($"Your ban timer has ended, you now have {Global.BanRateLimit} Bans avalable for {Global.Client.GetGuild(Global.GuildID).Name}");      
         }
     }
 }
