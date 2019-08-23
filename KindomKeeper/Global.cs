@@ -31,6 +31,8 @@ namespace KindomKeeper
         internal static ulong developerRoleID { get; set; }
         internal static int BanRateLimit { get; set; }
         internal static List<BanLimitTimer> banTimers { get; set; }
+        internal static ulong AdminGivawayChannelID { get; set; }
+        internal static ulong GiveawayChanID { get; set; }
 
         internal static void readConfig()
         {
@@ -57,6 +59,7 @@ namespace KindomKeeper
             developerRoleID = data.DeveloperRole;
             adminRoleID = data.AdminRole;
             BanRateLimit = data.BanLimit;
+            AdminGivawayChannelID = data.AdminGiveawayChannID;
         }
         internal static void saveConfig(JsonData jsonData)
         {
@@ -80,6 +83,8 @@ namespace KindomKeeper
         public ulong AdminRole { get; set; }
         public ulong DeveloperRole { get; set; }
         public int BanLimit { get; set; }
+        public ulong AdminGiveawayChannID { get; set; }
+        public ulong GiveawayChanID { get; set; }
     }
     public struct BotList
     {

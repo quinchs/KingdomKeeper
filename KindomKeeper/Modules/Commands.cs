@@ -148,16 +148,16 @@ namespace KindomKeeper.Modules
             if (user.Roles.Contains(Context.Guild.Roles.FirstOrDefault(r => r.Id == Global.developerRoleID))) { await Context.Channel.SendMessageAsync($"You cannot ban {user.Mention} because they make this bot!"); return; }
             if (goodPerms(Context, Context.Guild.GetUser(Context.Message.Author.Id), user))
             {
-                var checkbanlimit = Global.banTimers.FirstOrDefault(t => t.user == Context.Guild.GetUser(Context.Message.Author.Id));
-                if(checkbanlimit == null)
+                try
                 {
+                    var checkbanlimit = Global.banTimers.FirstOrDefault(t => t.user == Context.Guild.GetUser(Context.Message.Author.Id));
                     BanLimitTimer blt = new BanLimitTimer();
                     blt.Bans = 1;
                     blt.user = Context.Guild.GetUser(Context.Message.Author.Id);
                     blt.loopingTimer.Enabled = true;
                     await Context.Guild.AddBanAsync(user, 0, reason);
                     string banNum = "";
-                    switch (checkbanlimit.Bans)
+                    switch (blt.Bans)
                     {
                         case 1:
                             banNum = "1st";
@@ -169,12 +169,14 @@ namespace KindomKeeper.Modules
                             banNum = "3rd";
                             break;
                     }
-                    if (banNum == "") { banNum = $"{checkbanlimit}th"; }
+                    Global.banTimers.Add(blt);
+                    if (banNum == "") { banNum = $"{blt.Bans}th"; }
                     await Context.Channel.SendMessageAsync($"Banned {user.Mention} with reason: \"{reason}\", This is your {banNum} ban per hour!");
                 }
-                else
+                catch (Exception ex)
                 {
-                    if(checkbanlimit.Bans == Global.BanRateLimit)
+                    var checkbanlimit = new BanLimitTimer();
+                    if (checkbanlimit.Bans == Global.BanRateLimit)
                     {
                         await Context.Channel.SendMessageAsync($"Cannot ban {user.Mention} Because you have reach the ban limit of {Global.BanRateLimit} per Hour!");
                     }
@@ -183,7 +185,7 @@ namespace KindomKeeper.Modules
                         checkbanlimit.Bans = checkbanlimit.Bans + 1;
                         await Context.Guild.AddBanAsync(user, 0, reason);
                         string banNum = "";
-                        switch(checkbanlimit.Bans)
+                        switch (checkbanlimit.Bans)
                         {
                             case 1:
                                 banNum = "1st";
@@ -195,7 +197,7 @@ namespace KindomKeeper.Modules
                                 banNum = "3rd";
                                 break;
                         }
-                        if(banNum == "") { banNum = $"{checkbanlimit}th"; }
+                        if (banNum == "") { banNum = $"{checkbanlimit}th"; }
                         await Context.Channel.SendMessageAsync($"Banned {user.Mention} with reason: \"{reason}\", This is your {banNum} ban per hour!");
                     }
                 }
@@ -214,6 +216,24 @@ namespace KindomKeeper.Modules
         public async Task ban()
         {
             await Context.Channel.SendMessageAsync($"you need to provide a person and a one word reson to ban!");
+        }
+        [Command("redo")]
+        public async Task redo()
+        {
+            if(CommandHandler.giveawayinProg)
+            {
+                CommandHandler.giveawayStep = CommandHandler.giveawayStep - 1;
+                await CommandHandler.checkGiveaway(Context.Message);
+            }
+        }
+        [Command("giveaway")]
+        public async Task giveaway()
+        {
+            if(Context.Channel.Id == Global.AdminGivawayChannelID)
+            {
+                Console.WriteLine($"Giveaway Started by {Context.Message.Author.Username}{Context.Message.Author.Discriminator}");
+                await CommandHandler.giveaway(Context.Message.Author.Id, Global.GiveawayChanID, Context);
+            }
         }
         [Command("cloneroles")]
         public async Task cloneroles()
