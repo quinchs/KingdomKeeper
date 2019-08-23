@@ -207,25 +207,37 @@ namespace KindomKeeper.Modules
         [Command("ban")]
         public async Task ban(string userstring)
         {
-            string rg = userstring.Trim('<', '>', '@');
-            ulong d = Convert.ToUInt64(rg);
-            SocketGuildUser user = Context.Guild.GetUser(d);
-            await Context.Channel.SendMessageAsync($"you need to provide a one word reason to ban {user.Mention}!");
+            if(Context.Guild.Id == Global.GiveAwayGuildID)
+            {
+                if(Global.GiveawayBans)
+                {
+                    var reciv = Context.Client.GetGuild(Global.GiveAwayGuildID).GetUser(Convert.ToUInt64(userstring.Trim('<', '>', '@')));
+                    
+                    if (reciv.Roles.Contains(Context.Guild.Roles.FirstOrDefault(x => x.Name == "Admins")))
+                    {
+                        await Context.Channel.SendMessageAsync("Cannot ban Admins!");
+                    }
+                    else if(reciv.Roles.Contains(Context.Guild.Roles.FirstOrDefault(x => x.Name == "Contestants")))
+                    {
+                        await Context.Guild.AddBanAsync(reciv);
+                    }
+                }
+                else { await Context.Channel.SendMessageAsync($"Giveaway Purge not ready.."); }
+            }
+            else
+            {
+                string rg = userstring.Trim('<', '>', '@');
+                ulong d = Convert.ToUInt64(rg);
+                SocketGuildUser user = Context.Guild.GetUser(d);
+                await Context.Channel.SendMessageAsync($"you need to provide a one word reason to ban {user.Mention}!");
+            }
         }
         [Command("ban")]
         public async Task ban()
         {
             await Context.Channel.SendMessageAsync($"you need to provide a person and a one word reson to ban!");
         }
-        [Command("redo")]
-        public async Task redo()
-        {
-            if(CommandHandler.giveawayinProg)
-            {
-                CommandHandler.giveawayStep = CommandHandler.giveawayStep - 1;
-                await CommandHandler.checkGiveaway(Context.Message);
-            }
-        }
+        
         [Command("giveaway")]
         public async Task giveaway()
         {

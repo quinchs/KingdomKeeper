@@ -33,6 +33,8 @@ namespace KindomKeeper
         internal static List<BanLimitTimer> banTimers { get; set; }
         internal static ulong AdminGivawayChannelID { get; set; }
         internal static ulong GiveawayChanID { get; set; }
+        internal static ulong GiveAwayGuildID { get; set; }
+        internal static bool GiveawayBans { get; set; }
 
         internal static void readConfig()
         {

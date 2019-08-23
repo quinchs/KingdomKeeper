@@ -162,6 +162,13 @@ namespace KindomKeeper
                 {
                     if (msg.Channel.Id == Global.AdminGivawayChannelID)
                     {
+                        if(msg.ToString() == "\"cancle")
+                        {
+                            giveawayinProg = false;
+                            giveawayStep = 0;
+                            await msg.Channel.SendMessageAsync("Cancled giveaway");
+                            return;
+                        }
                         if (giveawayStep == 1)
                         {
                             try
@@ -185,7 +192,7 @@ namespace KindomKeeper
                                     EmbedBuilder eb = new EmbedBuilder();
                                     eb.Color = Color.Blue;
                                     eb.Footer = new EmbedFooterBuilder();
-                                    eb.Footer.Text = "to redo a step type **\"redo**";
+                                    eb.Footer.Text = "to cancle a giveaway type **\"cancle**";
                                     eb.Title = "**Giveaway Step 1**";
                                     string time = "";
                                     if (days != 0)
@@ -201,6 +208,7 @@ namespace KindomKeeper
                                     currGiveaway.Seconds = seconds;
                                     await msg.Channel.SendMessageAsync("", false, eb.Build());
                                     giveawayStep++;
+                                    return;
                                 }
                                 else
                                 {
@@ -222,11 +230,13 @@ namespace KindomKeeper
                                 eb.Color = Color.Blue;
                                 eb.Description = $"The **Giveaway Item** is now set to: \n `{currGiveaway.GiveAwayItem}` \n\n **Next Step** \n how many winners should there be?";
                                 eb.Footer = new EmbedFooterBuilder();
-                                eb.Footer.Text = "to redo a step type **\"redo**";
+                                eb.Footer.Text = "to cancle a giveaway type **\"cancle**";
                                 giveawayStep++;
                                 await msg.Channel.SendMessageAsync("", false, eb.Build());
+                                return;
+
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 await Exhandle(ex, msg);
                             }
@@ -251,11 +261,13 @@ namespace KindomKeeper
                                 if (ts.Seconds != 0)
                                     timefromsec += $", and {ts.Seconds}";
                                 
-                                eb.Description = $"Are you sure with these settings? \n\n **GiveawayItem** \n`{currGiveaway.GiveAwayItem}` \n \n **Winners** \n`{currGiveaway.numWinners}` \n\n **Giveawayer** \n `{currGiveaway.GiveAwayUser}` \n\n **Time**\n`{timefromsec}` \n\n to confirm these setting type `confirm` to redo a step type `\"redo`";
+                                eb.Description = $"Are you sure with these settings? \n\n **GiveawayItem** \n`{currGiveaway.GiveAwayItem}` \n \n **Winners** \n`{currGiveaway.numWinners}` \n\n **Giveawayer** \n `{currGiveaway.GiveAwayUser}` \n\n **Time**\n`{timefromsec}` \n\n to confirm these setting type `confirm`, to cancle a giveaway type **\"cancle**";
                                 giveawayStep++;
                                 await msg.Channel.SendMessageAsync("", false, eb.Build());
+                                return;
+
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 await msg.Channel.SendMessageAsync($"Uh oh, Looks like we have had a boo boo: {ex.Message}");
                                 await Exhandle(ex, msg);
@@ -263,7 +275,16 @@ namespace KindomKeeper
                         }
                         if(giveawayStep == 4)
                         {
-                            //do the channel thing lol
+                            if(msg.ToString() == "confirm")
+                            {
+                                //do the channel thing lol
+                                Console.WriteLine("Creating Giveaway Guild...");
+                                GiveawayGuild gg = new GiveawayGuild();
+                                await gg.createguild(currGiveaway);
+                                return;
+
+                            }
+
                         }
                     }
                 }

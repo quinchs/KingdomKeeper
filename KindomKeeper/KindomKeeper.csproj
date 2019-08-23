@@ -128,6 +128,8 @@
   <ItemGroup>
     <Compile Include="BanLimitTimer.cs" />
     <Compile Include="CommandHandler.cs" />
+    <Compile Include="GiveawayGuild.cs" />
+    <Compile Include="GiveawayTimer.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Modules\Commands.cs" />
     <Compile Include="Program.cs" />
