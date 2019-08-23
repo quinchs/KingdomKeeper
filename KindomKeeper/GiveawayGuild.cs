@@ -13,21 +13,23 @@ namespace KindomKeeper
     {
         internal DiscordSocketClient _client = Global.Client;
         internal RestVoiceChannel chantimer;
+        internal CommandHandler.GiveAway currgiveaway;
         internal string inviteURL;
 
         internal async Task createguild(CommandHandler.GiveAway currGiveaway)
         {
-            var newguild = await _client.CreateGuildAsync($"{currGiveaway.GiveAwayItem} Giveaway", _client.VoiceRegions.FirstOrDefault(n => n.Name == "US"));
+            var newguild = await _client.CreateGuildAsync($"{currGiveaway.GiveAwayItem} Giveaway", _client.VoiceRegions.FirstOrDefault(n => n.Name == "US East"));
+            Global.GiveAwayGuildID = newguild.Id;
             GuildPermissions adminguildperms = new GuildPermissions(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
             GuildPermissions Contestantperms = new GuildPermissions(false, false, false, false, false, false, true, false, true, true, false, false, true, true, true, false, true, true, true, false, false, false, true, false, true, false, false, false, false);
 
             await newguild.CreateRoleAsync("Admins", adminguildperms, Color.Red, true);
             await newguild.CreateRoleAsync("Contestants", Contestantperms, Color.Blue, false);
 
+            var chanContestants = await newguild.CreateTextChannelAsync("Contestants", x => x.Topic = "talk in here till bans are unleashed >:)");
+            var chanInfo = await newguild.CreateTextChannelAsync("Info", x => x.Topic = "Rules and info");
             var chanCount = await newguild.CreateVoiceChannelAsync("Time: xxx");
             chantimer = chanCount;
-            var chanInfo = await newguild.CreateTextChannelAsync("Info", x => x.Topic = "Rules and info");
-            var chanContestants = await newguild.CreateTextChannelAsync("Contestants", x => x.Topic = "talk in here till bans are unleashed >:)");
 
             EmbedBuilder eb = new EmbedBuilder();
             eb.Title = "***INFO***";
@@ -43,7 +45,25 @@ namespace KindomKeeper
             OverwritePermissions contesterperms = new OverwritePermissions(PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Deny, PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Deny, PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Deny, PermValue.Deny);
             await chanInfo.AddPermissionOverwriteAsync(newguild.Roles.FirstOrDefault(r => r.Name == "Contestants"), contesterperms);
             var url = chanInfo.CreateInviteAsync(null, null, false, false);
-            inviteURL = url.ToString();
+            _client.UserJoined += userjoinGiveaway;
+            inviteURL = url.Result.Url;
+        }
+
+        private async Task userjoinGiveaway(SocketGuildUser arg)
+        {
+            if(arg.Guild.Id == Global.GiveAwayGuildID)
+            {
+                if(arg.Id == Global.jakeID || _client.GetGuild(Global.GuildID).GetUser(arg.Id).Roles.Contains(_client.GetGuild(Global.GuildID).Roles.FirstOrDefault(r => r.Id == Global.developerRoleID)) || arg.Id == currgiveaway.GiveAwayUser)
+                {
+                    var role = _client.GetGuild(Global.GiveAwayGuildID).Roles.FirstOrDefault(r => r.Name == "Admins");
+                    await arg.AddRoleAsync(role);
+                }
+                else
+                {
+                    var role = _client.GetGuild(Global.GiveAwayGuildID).Roles.FirstOrDefault(r => r.Name == "Contestants");
+                    await arg.AddRoleAsync(role);
+                }
+            }
         }
 
         internal async Task UpdateTime(int seconds)

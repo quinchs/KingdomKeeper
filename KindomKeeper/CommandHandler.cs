@@ -281,6 +281,8 @@ namespace KindomKeeper
                                 Console.WriteLine("Creating Giveaway Guild...");
                                 GiveawayGuild gg = new GiveawayGuild();
                                 await gg.createguild(currGiveaway);
+                                string url = gg.inviteURL;
+                                Console.WriteLine(url);
                                 return;
 
                             }
