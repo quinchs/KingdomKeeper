@@ -62,6 +62,7 @@ namespace KindomKeeper
             adminRoleID = data.AdminRole;
             BanRateLimit = data.BanLimit;
             AdminGivawayChannelID = data.AdminGiveawayChannID;
+            GiveawayChanID = data.GiveawayChanID;
         }
         internal static void saveConfig(JsonData jsonData)
         {

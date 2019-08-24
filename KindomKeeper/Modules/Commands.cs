@@ -219,7 +219,12 @@ namespace KindomKeeper.Modules
                     }
                     else if(reciv.Roles.Contains(Context.Guild.Roles.FirstOrDefault(x => x.Name == "Contestants")))
                     {
+                        await Context.Channel.SendMessageAsync($"{reciv.Mention} HAS BEEN ELIMINATED BY {Context.Message.Author.Mention}: {Context.Guild.Users.Count(x => x.Roles.Contains(Context.Guild.Roles.FirstOrDefault(r => r.Name == "Contestants")))} Contestants left");
                         await Context.Guild.AddBanAsync(reciv);
+                    }
+                    else
+                    {
+                        await Context.Channel.SendMessageAsync($"Cannot ban {reciv.Mention} because there not a Contestant");
                     }
                 }
                 else { await Context.Channel.SendMessageAsync($"Giveaway Purge not ready.."); }
@@ -245,6 +250,21 @@ namespace KindomKeeper.Modules
             {
                 Console.WriteLine($"Giveaway Started by {Context.Message.Author.Username}{Context.Message.Author.Discriminator}");
                 await CommandHandler.giveaway(Context.Message.Author.Id, Global.GiveawayChanID, Context);
+            }
+        }
+        [Command("deletegiveaways")]
+        public async Task delgiveaway()
+        {
+            if (Context.Guild.Id == Global.DevGuildID)
+            {
+                foreach(var guild in Context.Client.Guilds)
+                {
+                    if(guild.Name.Contains("Giveaway"))
+                    {
+                        await Context.Channel.SendMessageAsync($"Leaving {guild.Name}...");
+                        await guild.DeleteAsync();
+                    }
+                }
             }
         }
         [Command("cloneroles")]

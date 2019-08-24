@@ -14,6 +14,7 @@ namespace KindomKeeper
         internal DiscordSocketClient _client = Global.Client;
         internal RestVoiceChannel chantimer;
         internal CommandHandler.GiveAway currgiveaway;
+        internal GiveawayTimer gt;
         internal string inviteURL;
 
         internal async Task createguild(CommandHandler.GiveAway currGiveaway)
@@ -77,14 +78,23 @@ namespace KindomKeeper
             if (ts.Minutes != 0)
                 timefromsec += $"{ts.Minutes} Minutes";
             if (ts.Seconds != 0)
-                timefromsec += $", and {ts.Seconds}";
+                if(ts.Minutes != 0)
+                    timefromsec += $", and {ts.Seconds} Seconds";
+                else
+                    timefromsec += $"{ts.Seconds} Seconds";
+
             await chantimer.ModifyAsync(x => x.Name = $"Time: {timefromsec}");
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.Title = "GIVEAWAY";
+            eb.Color = Color.Blue;
+            eb.Description = $"{_client.GetGuild(Global.GuildID).GetUser(currgiveaway.GiveAwayUser).Mention} Has started a giveaway for **{currgiveaway.GiveAwayItem}** with {currgiveaway.numWinners} winners, to enter the giveaway join {currgiveaway.discordInvite}\n\n **How does it work?** \n after the timer reaches 0 everyone will get access to the \"ban command, its like a FFA. the last person(s) remaining will get the giveaway item \n \n ***GIVEAWAY STARTS IN {timefromsec} ({seconds} seconds)***";
+            await currgiveaway.giveawaymsg.ModifyAsync(x => x.Embed = eb.Build());
         }
         internal async Task AllowBans()
         {
             Global.GiveawayBans = true;
             var guild = _client.GetGuild(Global.GiveAwayGuildID);
-            ulong id = guild.Channels.FirstOrDefault(x => x.Name == "Contestants").Id;
+            ulong id = guild.TextChannels.FirstOrDefault(x => x.Name == "contestants").Id;
             await guild.GetTextChannel(id).SendMessageAsync("@everyone BANS ARE NOW ACTIVE!! Use `\"ban @user` to ban people! you cannot ban admins so dont try");
         }
     }

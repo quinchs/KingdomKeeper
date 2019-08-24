@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -282,7 +283,31 @@ namespace KindomKeeper
                                 GiveawayGuild gg = new GiveawayGuild();
                                 await gg.createguild(currGiveaway);
                                 string url = gg.inviteURL;
+                                currGiveaway.discordInvite = url;
+                                EmbedBuilder eb = new EmbedBuilder();
+                                string timefromsec = "";
+                                TimeSpan ts = TimeSpan.FromSeconds(currGiveaway.Seconds);
+                                if (ts.Days != 0)
+                                    timefromsec += $"{ts.Days} Days, ";
+                                if (ts.Hours != 0)
+                                    timefromsec += $"{ts.Hours} Hours, ";
+                                if (ts.Minutes != 0)
+                                    timefromsec += $"{ts.Minutes} Minutes";
+                                if (ts.Seconds != 0)
+                                    timefromsec += $", and {ts.Seconds}";
+
+                                eb.Title = "GIVEAWAY";
+                                eb.Color = Color.Blue;
+                                eb.Description = $"{_client.GetGuild(Global.GuildID).GetUser(currGiveaway.GiveAwayUser).Mention} Has started a giveaway for **{currGiveaway.GiveAwayItem}** with {currGiveaway.numWinners} winners, to enter the giveaway join {currGiveaway.discordInvite}\n\n **How does it work?** \n after the timer reaches 0 everyone will get access to the \"ban command, its like a FFA. the last person(s) remaining will get the giveaway item \n \n ***GIVEAWAY STARTS IN {timefromsec}***";
                                 Console.WriteLine(url);
+                                GiveawayTimer gt = new GiveawayTimer();
+                                gt.currGiveaway = currGiveaway;
+                                gt.gguild = gg;
+                                gt.StartTimer();
+                                gt.Time = currGiveaway.Seconds;
+                                var giveawaymsg = await _client.GetGuild(Global.GuildID).GetTextChannel(Global.GiveawayChanID).SendMessageAsync("", false, eb.Build());
+                                currGiveaway.giveawaymsg = giveawaymsg;
+                                gg.currgiveaway = currGiveaway;
                                 return;
 
                             }
@@ -312,6 +337,7 @@ namespace KindomKeeper
             public ulong GiveAwayUser { get; set; }
             public string discordInvite { get; set; }
             public int numWinners { get; set; }
+            public RestUserMessage giveawaymsg { get; set; }
         }
     }
 }

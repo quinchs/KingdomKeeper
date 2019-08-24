@@ -16,11 +16,12 @@ namespace KindomKeeper
 
         internal Task StartTimer()
         {
+            gguild.gt = this;
             loopingTimer = new System.Timers.Timer()
             {
-                Interval = 10000,
+                Interval = 15000,
                 AutoReset = true,
-                Enabled = false
+                Enabled = true
             };
             loopingTimer.Elapsed += LoopingTimer_Elapsed;
             return Task.CompletedTask;
@@ -31,6 +32,7 @@ namespace KindomKeeper
             Time = Time - 15;
             if(Time <= 0)// giveawaytime
             {
+                this.loopingTimer.Enabled = false;
                 gguild.AllowBans();
             }
             else
