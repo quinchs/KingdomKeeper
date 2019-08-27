@@ -4,6 +4,7 @@ using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -44,10 +45,46 @@ namespace KindomKeeper
 
             _client.MessageReceived += HandleCommandAsync;
 
+            _client.MessageReceived += LogMessage;
+
+            _client.MessageDeleted += MessageDeletedLog;
+
             Console.WriteLine("[" + DateTime.Now.TimeOfDay + "] - " + "Services loaded");
         }
 
-        
+        private async Task MessageDeletedLog(Cacheable<IMessage, ulong> arg1, ISocketMessageChannel arg2)
+        {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.Title = "**Deleted Message**";
+            eb.Color = Color.LightOrange;
+            eb.Description = $"The Message `{arg1.Value.Content}` send by {arg1.Value.Author.Username + "#" + arg1.Value.Author.Discriminator} in the channel **{arg2.Name}** was Deleted";
+            await _client.GetGuild(Global.GuildID).GetTextChannel(Global.KeeperLogsChanId).SendMessageAsync("", false, eb.Build());
+        }
+
+        private async Task LogMessage(SocketMessage arg)
+        {
+            //Log messages to txt file
+            string logMsg = "";
+            logMsg += $"[{DateTime.UtcNow.ToLongDateString() + " : " + DateTime.UtcNow.ToLongTimeString()}] ";
+            logMsg += $"USER: {arg.Author.Username}#{arg.Author.Discriminator} CHANNEL: {arg.Channel.Name} MESSAGE: {arg.Content}";
+            var name = DateTime.Now.Day + "_" + DateTime.Now.Month + "_" + DateTime.Now.Year;
+            if (File.Exists(Global.MessageLogsDir + $"\\{name}"))
+            {
+                string curr = File.ReadAllText(Global.MessageLogsDir + $"\\{name}");
+                File.WriteAllText(Global.MessageLogsDir + $"\\{name}", $"{curr}\n{logMsg}");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine($"Logged message (from {arg.Author.Username})");
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+            }
+            else
+            {
+                File.Create(Global.MessageLogsDir + $"\\{name}").Close();
+                File.WriteAllText(Global.MessageLogsDir + $"\\{name}", $"{logMsg}");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"Logged message (from {arg.Author.Username}) and created new logfile");
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+            }
+        }
 
         private async Task UserJoined(SocketGuildUser arg)
         {
@@ -65,7 +102,7 @@ namespace KindomKeeper
         {
             string newmsg = welcomeMessage;
             newmsg = newmsg.Replace("(user)", user.Mention);
-            newmsg = newmsg.Replace("(usercount)", $"{guild.Users.Count}st");
+            newmsg = newmsg.Replace("(usercount)", $"{guild.Users.Count}");
             return newmsg;
         }
         private async Task checkAddRole(SocketUser arg1, SocketUser arg2)
@@ -137,8 +174,57 @@ namespace KindomKeeper
                     b.Footer.Text = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " ZULU";
                     b.Title = "Bot Command Error!";
                     await _client.GetGuild(Global.DevGuildID).GetTextChannel(Global.devlogchannel).SendMessageAsync("", false, b.Build());
+                    await _client.GetGuild(Global.GuildID).GetTextChannel(Global.KeeperLogsChanId).SendMessageAsync("", false, b.Build());
                 }
+                await HandleCommandresult(result, msg);
             }
+        }
+        internal async Task HandleCommandresult(IResult result, SocketUserMessage msg)
+        {
+            string logMsg = "";
+            logMsg += $"[UTC TIME - {DateTime.UtcNow.ToLongDateString() + " : " + DateTime.UtcNow.ToLongTimeString()}] ";
+            string completed = resultformat(result.IsSuccess);
+            if(!result.IsSuccess)
+                logMsg += $"COMMAND: {msg.Content} USER: {msg.Author.Username + "#" + msg.Author.Discriminator} COMMAND RESULT: {completed} ERROR TYPE: {result.Error.Value} EXCEPTION: {result.ErrorReason}";
+            else
+                logMsg += $"COMMAND: {msg.Content} USER: {msg.Author.Username + "#" + msg.Author.Discriminator} COMMAND RESULT: {completed}";
+            var name = DateTime.Now.Day + "_" + DateTime.Now.Month + "_" + DateTime.Now.Year;
+            if (File.Exists(Global.CommandLogsDir + $"\\{name}"))
+            {
+                string curr = File.ReadAllText(Global.CommandLogsDir + $"\\{name}");
+                File.WriteAllText(Global.CommandLogsDir + $"\\{name}", $"{curr}\n{logMsg}");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine($"Logged Command (from {msg.Author.Username})");
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+            }
+            else
+            {
+                File.Create(Global.MessageLogsDir + $"\\{name}").Close();
+                File.WriteAllText(Global.CommandLogsDir + $"\\{name}", $"{logMsg}");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"Logged Command (from {msg.Author.Username}) and created new logfile");
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+            }
+            if(result.IsSuccess)
+            {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.Color = Color.Green;
+                eb.Title = "**Command Log**";
+                eb.Description = $"The Command {msg.Content.Split(' ').First()} was used in {msg.Channel.Name} by {msg.Author.Username + "#" + msg.Author.Discriminator} \n\n **Full Message** \n `{msg.Content}`\n\n **Result** \n {completed}";
+                eb.Footer = new EmbedFooterBuilder();
+                eb.Footer.Text = "Command Autogen";
+                eb.Footer.IconUrl = _client.CurrentUser.GetAvatarUrl();
+                await _client.GetGuild(Global.GuildID).GetTextChannel(Global.KeeperLogsChanId).SendMessageAsync("", false, eb.Build());
+            }
+
+        }
+        internal static string resultformat(bool isSuccess)
+        {
+            if (isSuccess)
+                return "Sucess";
+            if (!isSuccess)
+                return "Failed";
+            return "Unknown";
         }
         internal static async Task giveaway(ulong givawayerID, ulong channelID, SocketCommandContext context)
         {
@@ -303,15 +389,13 @@ namespace KindomKeeper
                                 GiveawayTimer gt = new GiveawayTimer();
                                 gt.currGiveaway = currGiveaway;
                                 gt.gguild = gg;
-                                gt.StartTimer();
+                                await gt.StartTimer();
                                 gt.Time = currGiveaway.Seconds;
                                 var giveawaymsg = await _client.GetGuild(Global.GuildID).GetTextChannel(Global.GiveawayChanID).SendMessageAsync("", false, eb.Build());
                                 currGiveaway.giveawaymsg = giveawaymsg;
                                 gg.currgiveaway = currGiveaway;
                                 return;
-
                             }
-
                         }
                     }
                 }

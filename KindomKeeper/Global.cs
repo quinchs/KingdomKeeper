@@ -14,6 +14,10 @@ namespace KindomKeeper
         internal static DiscordSocketClient Client { get; set; }
         internal static string jsonAccountFilePath = Environment.CurrentDirectory + @"\Data\UserAccounts.json";
         internal static string jsonGlobalData = Environment.CurrentDirectory + @"\Data\GlobalData.json";
+        internal static string CommandLogsDir = Environment.CurrentDirectory + @"\CommandLogs\";
+        internal static string MessageLogsDir = Environment.CurrentDirectory + @"\MessageLogs\";
+        internal static List<LogFiles> CommandLogsList = new List<LogFiles>();
+        internal static List<LogFiles> MessageLogsList = new List<LogFiles>();
         internal static string BotToken { get; set; }
         internal static ulong GuildID { get; set; }
         internal static ulong DevGuildID { get; set; }
@@ -35,6 +39,7 @@ namespace KindomKeeper
         internal static ulong GiveawayChanID { get; set; }
         internal static ulong GiveAwayGuildID { get; set; }
         internal static bool GiveawayBans { get; set; }
+        internal static ulong KeeperLogsChanId { get; set; }
 
         internal static void readConfig()
         {
@@ -63,6 +68,7 @@ namespace KindomKeeper
             BanRateLimit = data.BanLimit;
             AdminGivawayChannelID = data.AdminGiveawayChannID;
             GiveawayChanID = data.GiveawayChanID;
+            KeeperLogsChanId = data.KeeperLogsChanID;
         }
         internal static void saveConfig(JsonData jsonData)
         {
@@ -88,9 +94,15 @@ namespace KindomKeeper
         public int BanLimit { get; set; }
         public ulong AdminGiveawayChannID { get; set; }
         public ulong GiveawayChanID { get; set; }
+        public ulong KeeperLogsChanID { get; set; }
     }
     public struct BotList
     {
         public static List<SocketGuildUser> botList { get; set; }
+    }
+    public struct LogFiles
+    {
+        public string Name { get; set; }
+        public string Path { get; set; }
     }
 }

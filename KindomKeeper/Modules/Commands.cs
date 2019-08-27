@@ -10,6 +10,7 @@ using Discord.Rest;
 using Discord;
 using System.Reflection;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace KindomKeeper.Modules
 {
@@ -242,7 +243,142 @@ namespace KindomKeeper.Modules
         {
             await Context.Channel.SendMessageAsync($"you need to provide a person and a one word reson to ban!");
         }
-        
+        [Command("commandlogs")]
+        public async Task logs(string name)
+        {
+            if(Context.Guild.Id == Global.DevGuildID)
+            {
+                if (name == "list")
+                {
+                    string names = "";
+                    foreach (var file in Directory.GetFiles(Global.CommandLogsDir))
+                    {
+                        names += file + "\n";
+                    }
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.Color = Color.Green;
+                    eb.Title = "**Command logs List**";
+                    eb.Description = $"Here are the current Command Logs, To fetch one do `\"commandlogs (name) \n ```{name}```";
+
+                }
+                else
+                {
+                    if (File.Exists(Global.CommandLogsDir + $"\\{name}"))
+                    {
+                        await Context.Channel.SendFileAsync(Global.CommandLogsDir + $"\\{name}", $"Here is the Log **{name}**");
+                    }
+                    else
+                    {
+                        EmbedBuilder eb = new EmbedBuilder();
+                        eb.Color = Color.Red;
+                        eb.Title = "**Command logs List**";
+                        eb.Description = $"The file {name} does not exist, try doing `\"commandlogs list` to view all the command logs";
+                        await Context.Channel.SendMessageAsync("", false, eb.Build());
+                    }
+                }
+            }
+            else
+            {
+                if(Context.Channel.Id == Global.KeeperLogsChanId)
+                {
+                    if (name == "list")
+                    {
+                        string names = "";
+                        foreach (var file in Directory.GetFiles(Global.CommandLogsDir))
+                        {
+                            names += file + "\n";
+                        }
+                        EmbedBuilder eb = new EmbedBuilder();
+                        eb.Color = Color.Green;
+                        eb.Title = "**Command logs List**";
+                        eb.Description = $"Here are the current Command Logs, To fetch one do `\"commandlogs (name) \n ```{name}```";
+                        await Context.Channel.SendMessageAsync("", false, eb.Build());
+                    }
+                    else
+                    {
+                        if (File.Exists(Global.CommandLogsDir + $"\\{name}"))
+                        {
+                            await Context.Channel.SendFileAsync(Global.CommandLogsDir + $"\\{name}", $"Here is the Log **{name}**");
+                        }
+                        else
+                        {
+                            EmbedBuilder eb = new EmbedBuilder();
+                            eb.Color = Color.Red;
+                            eb.Title = "**Command logs List**";
+                            eb.Description = $"The file {name} does not exist, try doing `\"commandlogs list` to view all the command logs";
+                        }
+                    }
+                }
+            }
+        }
+        [Command("messagelogs")]
+        public async Task mlogs(string name)
+        {
+            if (Context.Guild.Id == Global.DevGuildID)
+            {
+                if (name == "list")
+                {
+                    string names = "";
+                    foreach (var file in Directory.GetFiles(Global.MessageLogsDir))
+                    {
+                        names += file + "\n";
+                    }
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.Color = Color.Green;
+                    eb.Title = "**Message logs List**";
+                    eb.Description = $"Here are the current Message Logs, To fetch one do `\"messagelogs (name) \n ```{name}```";
+
+                }
+                else
+                {
+                    if (File.Exists(Global.MessageLogsDir + $"\\{name}"))
+                    {
+                        await Context.Channel.SendFileAsync(Global.MessageLogsDir + $"\\{name}", $"Here is the Log **{name}**");
+                    }
+                    else
+                    {
+                        EmbedBuilder eb = new EmbedBuilder();
+                        eb.Color = Color.Red;
+                        eb.Title = "**Message logs List**";
+                        eb.Description = $"The file {name} does not exist, try doing `\"messagelogs list` to view all the command logs";
+                        await Context.Channel.SendMessageAsync("", false, eb.Build());
+                    }
+                }
+            }
+            else
+            {
+                if (Context.Channel.Id == Global.KeeperLogsChanId)
+                {
+                    if (name == "list")
+                    {
+                        string names = "";
+                        foreach (var file in Directory.GetFiles(Global.MessageLogsDir))
+                        {
+                            names += file + "\n";
+                        }
+                        EmbedBuilder eb = new EmbedBuilder();
+                        eb.Color = Color.Green;
+                        eb.Title = "**Message logs List**";
+                        eb.Description = $"Here are the current Message Logs, To fetch one do `\"commandlogs (name) \n ```{name}```";
+                        await Context.Channel.SendMessageAsync("", false, eb.Build());
+                    }
+                    else
+                    {
+                        if (File.Exists(Global.MessageLogsDir + $"\\{name}"))
+                        {
+                            await Context.Channel.SendFileAsync(Global.MessageLogsDir + $"\\{name}", $"Here is the Log **{name}**");
+                        }
+                        else
+                        {
+                            EmbedBuilder eb = new EmbedBuilder();
+                            eb.Color = Color.Red;
+                            eb.Title = "**Message logs List**";
+                            eb.Description = $"The file {name} does not exist, try doing `\"messagelogs list` to view all the command logs";
+                        }
+                    }
+                }
+            }
+        }
         [Command("giveaway")]
         public async Task giveaway()
         {
