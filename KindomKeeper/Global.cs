@@ -59,14 +59,6 @@ namespace KindomKeeper
             welcomeMessage = data.WelcomeMessage;
             WelcomemessagechannelID = data.Welcomemessagechannel;
             preflix = data.Preflix.ToCharArray().First();
-            jsonItemsList = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(jsonGlobalData));
-            jsonItemsList.Remove("Token"); //Dont want the token in there >:)
-            jsonItemsList.Remove("Preflix");
-            jsonItemsList.Remove("DevBotLogsChannel");
-            jsonItemsList.Remove("DevChannelID");
-            jsonItemsList.Remove("JakeeID");
-            JsonItemsListDevOps = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(jsonGlobalData));
-            JsonItemsListDevOps.Remove("Token");
             developerRoleID = data.DeveloperRole;
             adminRoleID = data.AdminRole;
             BanRateLimit = data.BanLimit;
@@ -75,6 +67,18 @@ namespace KindomKeeper
             KeeperLogsChanId = data.KeeperLogsChanID;
             WecomemessageURL = data.WecomemessageURL;
             JakeeGuildDebugChanID = data.JakeeGuildDebugChanID;
+            jsonItemsList = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(jsonGlobalData));
+            jsonItemsList.Remove("Token"); //Dont want the token in there >:)
+            jsonItemsList.Remove("Preflix");
+            jsonItemsList.Remove("DevBotLogsChannel");
+            jsonItemsList.Remove("DevChannelID");
+            jsonItemsList.Remove("JakeeID");
+            jsonItemsList.Remove("KeeperLogsChanId");
+            jsonItemsList.Remove("JakeeGuildDebugChanID");
+            jsonItemsList.Remove("AdminGivawayChannelID");
+            jsonItemsList.Remove("developerRoleID");
+            JsonItemsListDevOps = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(jsonGlobalData));
+            JsonItemsListDevOps.Remove("Token");
         }
         internal static void saveConfig(JsonData jsonData)
         {
