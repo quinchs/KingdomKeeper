@@ -253,12 +253,14 @@ namespace KindomKeeper.Modules
                     string names = "";
                     foreach (var file in Directory.GetFiles(Global.CommandLogsDir))
                     {
-                        names += file + "\n";
+                        names += file.Split('\\').Last() + "\n";
                     }
+                    if (names == "")
+                        names = "There are currently no Log files :\\";
                     EmbedBuilder eb = new EmbedBuilder();
                     eb.Color = Color.Green;
                     eb.Title = "**Command logs List**";
-                    eb.Description = $"Here are the current Command Logs, To fetch one do `\"commandlogs (name) \n ```{name}```";
+                    eb.Description = $"Here are the current Command Logs, To fetch one do `\"commandlogs (name)` \n ```{names}```";
 
                 }
                 else
@@ -286,12 +288,14 @@ namespace KindomKeeper.Modules
                         string names = "";
                         foreach (var file in Directory.GetFiles(Global.CommandLogsDir))
                         {
-                            names += file + "\n";
+                            names += file.Split('\\').Last() + "\n";
                         }
+                        if (names == "")
+                            names = "There are currently no Log files :\\";
                         EmbedBuilder eb = new EmbedBuilder();
                         eb.Color = Color.Green;
                         eb.Title = "**Command logs List**";
-                        eb.Description = $"Here are the current Command Logs, To fetch one do `\"commandlogs (name) \n ```{name}```";
+                        eb.Description = $"Here are the current Command Logs, To fetch one do `\"commandlogs (name)` \n ```{names}```";
                         await Context.Channel.SendMessageAsync("", false, eb.Build());
                     }
                     else
@@ -321,12 +325,14 @@ namespace KindomKeeper.Modules
                     string names = "";
                     foreach (var file in Directory.GetFiles(Global.MessageLogsDir))
                     {
-                        names += file + "\n";
+                        names += file.Split('\\').Last() + "\n";
                     }
+                    if (names == "")
+                        names = "There are currently no Log files :\\";
                     EmbedBuilder eb = new EmbedBuilder();
                     eb.Color = Color.Green;
                     eb.Title = "**Message logs List**";
-                    eb.Description = $"Here are the current Message Logs, To fetch one do `\"messagelogs (name) \n ```{name}```";
+                    eb.Description = $"Here are the current Message Logs, To fetch one do `\"messagelogs (name)` \n ```{names}```";
 
                 }
                 else
@@ -354,12 +360,14 @@ namespace KindomKeeper.Modules
                         string names = "";
                         foreach (var file in Directory.GetFiles(Global.MessageLogsDir))
                         {
-                            names += file + "\n";
+                            names += file.Split('\\').Last() + "\n";
                         }
+                        if (names == "")
+                            names = "There are currently no Log files :\\";
                         EmbedBuilder eb = new EmbedBuilder();
                         eb.Color = Color.Green;
                         eb.Title = "**Message logs List**";
-                        eb.Description = $"Here are the current Message Logs, To fetch one do `\"commandlogs (name) \n ```{name}```";
+                        eb.Description = $"Here are the current Message Logs, To fetch one do `\"commandlogs (name)` \n ```{names}```";
                         await Context.Channel.SendMessageAsync("", false, eb.Build());
                     }
                     else

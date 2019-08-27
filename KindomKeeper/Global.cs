@@ -40,9 +40,13 @@ namespace KindomKeeper
         internal static ulong GiveAwayGuildID { get; set; }
         internal static bool GiveawayBans { get; set; }
         internal static ulong KeeperLogsChanId { get; set; }
+        internal static string WecomemessageURL { get; set; }
+        internal static ulong JakeeGuildDebugChanID { get; set; }
 
         internal static void readConfig()
         {
+            if (!Directory.Exists(CommandLogsDir)) { Directory.CreateDirectory(CommandLogsDir); }
+            if (!Directory.Exists(MessageLogsDir)) { Directory.CreateDirectory(MessageLogsDir); }
             var data = JsonConvert.DeserializeObject<JsonData>(File.ReadAllText(jsonGlobalData));
             CurrentJsonData = data;
             BotToken = data.Token;
@@ -69,6 +73,8 @@ namespace KindomKeeper
             AdminGivawayChannelID = data.AdminGiveawayChannID;
             GiveawayChanID = data.GiveawayChanID;
             KeeperLogsChanId = data.KeeperLogsChanID;
+            WecomemessageURL = data.WecomemessageURL;
+            JakeeGuildDebugChanID = data.JakeeGuildDebugChanID;
         }
         internal static void saveConfig(JsonData jsonData)
         {
@@ -95,6 +101,8 @@ namespace KindomKeeper
         public ulong AdminGiveawayChannID { get; set; }
         public ulong GiveawayChanID { get; set; }
         public ulong KeeperLogsChanID { get; set; }
+        public string WecomemessageURL { get; set; }
+        public ulong JakeeGuildDebugChanID { get; set; }
     }
     public struct BotList
     {

@@ -34,31 +34,41 @@ namespace KindomKeeper
             _service.AddModulesAsync(Assembly.GetEntryAssembly(), null);
 
             _client.UserJoined += checkBot;
-
+            
             _client.UserJoined += UserJoined;
 
             _client.UserUpdated += checkAddRole;
 
             _client.Ready += _client_Connected;
-
-            _client.MessageReceived += checkGiveaway;
-
-            _client.MessageReceived += HandleCommandAsync;
-
-            _client.MessageReceived += LogMessage;
-
+            
+            _client.MessageReceived += msgHandler;
+            
             _client.MessageDeleted += MessageDeletedLog;
 
             Console.WriteLine("[" + DateTime.Now.TimeOfDay + "] - " + "Services loaded");
         }
 
+        private async Task msgHandler(SocketMessage arg)
+        {
+            try
+            {
+                await HandleCommandAsync(arg);
+                await LogMessage(arg);
+                await checkGiveaway(arg);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        
         private async Task MessageDeletedLog(Cacheable<IMessage, ulong> arg1, ISocketMessageChannel arg2)
         {
             EmbedBuilder eb = new EmbedBuilder();
             eb.Title = "**Deleted Message**";
             eb.Color = Color.LightOrange;
             eb.Description = $"The Message `{arg1.Value.Content}` send by {arg1.Value.Author.Username + "#" + arg1.Value.Author.Discriminator} in the channel **{arg2.Name}** was Deleted";
-            await _client.GetGuild(Global.GuildID).GetTextChannel(Global.KeeperLogsChanId).SendMessageAsync("", false, eb.Build());
+            await _client.GetGuild(Global.GuildID).GetTextChannel(Global.JakeeGuildDebugChanID).SendMessageAsync("", false, eb.Build());
         }
 
         private async Task LogMessage(SocketMessage arg)
@@ -68,17 +78,17 @@ namespace KindomKeeper
             logMsg += $"[{DateTime.UtcNow.ToLongDateString() + " : " + DateTime.UtcNow.ToLongTimeString()}] ";
             logMsg += $"USER: {arg.Author.Username}#{arg.Author.Discriminator} CHANNEL: {arg.Channel.Name} MESSAGE: {arg.Content}";
             var name = DateTime.Now.Day + "_" + DateTime.Now.Month + "_" + DateTime.Now.Year;
-            if (File.Exists(Global.MessageLogsDir + $"\\{name}"))
+            if (File.Exists(Global.MessageLogsDir + $"\\{name}.txt"))
             {
-                string curr = File.ReadAllText(Global.MessageLogsDir + $"\\{name}");
-                File.WriteAllText(Global.MessageLogsDir + $"\\{name}", $"{curr}\n{logMsg}");
+                string curr = File.ReadAllText(Global.MessageLogsDir + $"\\{name}.txt");
+                File.WriteAllText(Global.MessageLogsDir + $"\\{name}.txt", $"{curr}\n{logMsg}");
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine($"Logged message (from {arg.Author.Username})");
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
             }
             else
             {
-                File.Create(Global.MessageLogsDir + $"\\{name}").Close();
+                File.Create(Global.MessageLogsDir + $"\\{name}.txt").Close();
                 File.WriteAllText(Global.MessageLogsDir + $"\\{name}", $"{logMsg}");
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine($"Logged message (from {arg.Author.Username}) and created new logfile");
@@ -90,7 +100,7 @@ namespace KindomKeeper
         {
             EmbedBuilder b = new EmbedBuilder();
             b.Color = Color.Green;
-            b.ImageUrl = "https://cdn.discordapp.com/attachments/608080803733176325/610360300880789514/17fd2ebcb1f2.gif";
+            b.ImageUrl = Global.WecomemessageURL;
             b.Title = $"***Welcome, {arg.Username}#{arg.Discriminator}!***";
             b.Description = welcomeMessageBuilder(arg, Global.welcomeMessage, arg.Guild);
             b.Footer = new EmbedFooterBuilder();
@@ -174,7 +184,7 @@ namespace KindomKeeper
                     b.Footer.Text = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " ZULU";
                     b.Title = "Bot Command Error!";
                     await _client.GetGuild(Global.DevGuildID).GetTextChannel(Global.devlogchannel).SendMessageAsync("", false, b.Build());
-                    await _client.GetGuild(Global.GuildID).GetTextChannel(Global.KeeperLogsChanId).SendMessageAsync("", false, b.Build());
+                    await _client.GetGuild(Global.GuildID).GetTextChannel(Global.JakeeGuildDebugChanID).SendMessageAsync("", false, b.Build());
                 }
                 await HandleCommandresult(result, msg);
             }
@@ -189,18 +199,18 @@ namespace KindomKeeper
             else
                 logMsg += $"COMMAND: {msg.Content} USER: {msg.Author.Username + "#" + msg.Author.Discriminator} COMMAND RESULT: {completed}";
             var name = DateTime.Now.Day + "_" + DateTime.Now.Month + "_" + DateTime.Now.Year;
-            if (File.Exists(Global.CommandLogsDir + $"\\{name}"))
+            if (File.Exists(Global.CommandLogsDir + $"\\{name}.txt"))
             {
-                string curr = File.ReadAllText(Global.CommandLogsDir + $"\\{name}");
-                File.WriteAllText(Global.CommandLogsDir + $"\\{name}", $"{curr}\n{logMsg}");
+                string curr = File.ReadAllText(Global.CommandLogsDir + $"\\{name}.txt");
+                File.WriteAllText(Global.CommandLogsDir + $"\\{name}.txt", $"{curr}\n{logMsg}");
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine($"Logged Command (from {msg.Author.Username})");
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
             }
             else
             {
-                File.Create(Global.MessageLogsDir + $"\\{name}").Close();
-                File.WriteAllText(Global.CommandLogsDir + $"\\{name}", $"{logMsg}");
+                File.Create(Global.MessageLogsDir + $"\\{name}.txt").Close();
+                File.WriteAllText(Global.CommandLogsDir + $"\\{name}.txt", $"{logMsg}");
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine($"Logged Command (from {msg.Author.Username}) and created new logfile");
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -214,7 +224,7 @@ namespace KindomKeeper
                 eb.Footer = new EmbedFooterBuilder();
                 eb.Footer.Text = "Command Autogen";
                 eb.Footer.IconUrl = _client.CurrentUser.GetAvatarUrl();
-                await _client.GetGuild(Global.GuildID).GetTextChannel(Global.KeeperLogsChanId).SendMessageAsync("", false, eb.Build());
+                await _client.GetGuild(Global.GuildID).GetTextChannel(Global.JakeeGuildDebugChanID).SendMessageAsync("", false, eb.Build());
             }
 
         }
